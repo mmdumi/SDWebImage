@@ -10,6 +10,7 @@
 #import "SDWebImageDecoder.h"
 #import <CommonCrypto/CommonDigest.h>
 #import "SDWebImageDecoder.h"
+#import "SDWebImageManager.h"
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 
@@ -150,30 +151,47 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
-//TODO: aici
-- (void)moveFileFromPath:(NSString *)path toPath:(NSString *)destPath
+- (void)moveFileWithURL:(NSURL *)sourceURL toURL:(NSURL *)destURL done:(void (^)(NSError *error))doneBlock
 {
-  if (!path || !destPath) {
+  if (!sourceURL || !destURL) {
     return;
   }
   
-  // Can't use defaultManager another thread
-  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSString *path = [[SDWebImageManager sharedManager] cacheKeyForURL:sourceURL];
+  NSString *destPath = [[SDWebImageManager sharedManager] cacheKeyForURL:destURL];
   
-  if (path && destPath) {
-    NSError *error;
-    BOOL result = [fileManager moveItemAtURL:[NSURL fileURLWithPath:[self cachePathForKey:path]]
-                                       toURL:[NSURL fileURLWithPath:[self cachePathForKey:destPath]]
-                                       error:&error];
-    if (!result) {
-      NSLog(@"error moving: %@", error);
-    }
-  }
+  dispatch_async(self.ioQueue, ^
+  {
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+  
+    [fileManager moveItemAtURL:[NSURL fileURLWithPath:[self cachePathForKey:path]]
+                         toURL:[NSURL fileURLWithPath:[self cachePathForKey:destPath]]
+                         error:&error];
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (doneBlock) {
+                     doneBlock(error);
+      }
+                   });
+  });
 }
 
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key
 {
     return [self.memCache objectForKey:key];
+}
+
+- (UIImage *)imageForURL:(NSURL *)fileURL
+{
+  NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:fileURL];
+  if (!key) {
+    return nil;
+  }
+  
+  UIImage *diskImage =
+  [UIImage decodedImageWithImage:SDScaledImageForPath(key, [NSData dataWithContentsOfFile:[self cachePathForKey:key]])];
+
+  return diskImage;
 }
 
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock

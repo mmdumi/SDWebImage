@@ -113,6 +113,13 @@ typedef void(^SDWebImageCompletedWithFinishedBlock)(UIImage *image, NSError *err
                                   progress:(SDWebImageDownloaderProgressBlock)progressBlock
                                  completed:(SDWebImageCompletedWithFinishedBlock)completedBlock;
 
+/** Returns the cache key used for storing the contents of the given url
+ *
+ * @param url The URL to the image
+ * @return Returns the cache key
+ */
+- (NSString *)cacheKeyForURL:(NSURL *)url;
+
 /**
  * Cancel all current opreations
  */

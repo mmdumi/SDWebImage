@@ -81,6 +81,14 @@ typedef enum SDImageCacheType SDImageCacheType;
 - (void)storeImage:(UIImage *)image imageData:(NSData *)data forKey:(NSString *)key toDisk:(BOOL)toDisk;
 
 
+/** Move a cached file with the sourceURL to another url given by destURL
+ *
+ * @param sourceURL Source url to be moved
+ * @param destURL Destination url to contain the cached image given by sourceURL
+ * @param doneBlock Block to be called after the operation moves
+ */
+- (void)moveFileWithURL:(NSURL *)sourceURL toURL:(NSURL *)destURL done:(void (^)(NSError *error))doneBlock;
+
 /**
  * Query the disk cache asynchronousely.
  *
@@ -94,6 +102,14 @@ typedef enum SDImageCacheType SDImageCacheType;
  * @param key The unique key used to store the wanted image
  */
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key;
+
+/**
+ * Returns the image for the given fileURL
+ *
+ * @param fileURL Source URL
+ * @return Image object or nil if it doesn't have any cached image
+ */
+- (UIImage *)imageForURL:(NSURL *)fileURL;
 
 /**
  * Remove the image from memory and disk cache synchronousely
