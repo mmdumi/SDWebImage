@@ -150,6 +150,27 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
     [self storeImage:image imageData:nil forKey:key toDisk:toDisk];
 }
 
+//TODO: aici
+- (void)moveFileFromPath:(NSString *)path toPath:(NSString *)destPath
+{
+  if (!path || !destPath) {
+    return;
+  }
+  
+  // Can't use defaultManager another thread
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  
+  if (path && destPath) {
+    NSError *error;
+    BOOL result = [fileManager moveItemAtURL:[NSURL fileURLWithPath:[self cachePathForKey:path]]
+                                       toURL:[NSURL fileURLWithPath:[self cachePathForKey:destPath]]
+                                       error:&error];
+    if (!result) {
+      NSLog(@"error moving: %@", error);
+    }
+  }
+}
+
 - (UIImage *)imageFromMemoryCacheForKey:(NSString *)key
 {
     return [self.memCache objectForKey:key];
