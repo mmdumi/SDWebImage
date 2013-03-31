@@ -96,6 +96,8 @@ typedef enum SDImageCacheType SDImageCacheType;
  */
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
 
+- (void)queryDiskCacheForURL:(NSURL *)url done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock;
+
 /**
  * Query the memory cache.
  *

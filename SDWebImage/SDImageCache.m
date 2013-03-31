@@ -194,6 +194,12 @@ static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
   return diskImage;
 }
 
+- (void)queryDiskCacheForURL:(NSURL *)url done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
+{
+  NSString *key = [[SDWebImageManager sharedManager] cacheKeyForURL:url];
+  [self queryDiskCacheForKey:key done:doneBlock];
+}
+
 - (void)queryDiskCacheForKey:(NSString *)key done:(void (^)(UIImage *image, SDImageCacheType cacheType))doneBlock
 {
     if (!doneBlock) return;
