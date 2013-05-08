@@ -37,6 +37,11 @@ typedef enum SDImageCacheType SDImageCacheType;
  */
 @property (assign, nonatomic) NSInteger maxCacheAge;
 
+/** 
+ * Change cache namespace
+ */
+@property (strong, nonatomic) NSString *nameSpace;
+
 /**
  * Returns global shared cache instance
  *
@@ -88,6 +93,15 @@ typedef enum SDImageCacheType SDImageCacheType;
  * @param doneBlock Block to be called after the operation moves
  */
 - (void)moveFileWithURL:(NSURL *)sourceURL toURL:(NSURL *)destURL done:(void (^)(NSError *error))doneBlock;
+
+/** 
+ * Move files from namespace to namespace
+ * If destNamespace is nil we will use the default namespace
+ */
+- (void)moveFilesFromNamespace:(NSString *)sourceNameSpace
+                   toNameSpace:(NSString *)destNameSpace
+                          done:(void (^)(NSError *error))doneBlock;
+ 
 
 /**
  * Query the disk cache asynchronousely.
